@@ -4,16 +4,24 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+   public bool isPaused;
+
    [SerializeField] private float speed; //velocidade do Player
    [SerializeField] private float runSpeed;
 
    private Rigidbody2D rig; //manipular o rigidbody
+   private PlayerItems playerItems;
 
    private float initialSpeed;
    private bool _isRunning;
    private bool _isRolling;
    private bool _isCutting;
+   private bool _isDigging;
+   private bool _isWatering;
+
    private Vector2 _direction; //armazenar a direção que o personagem vai mover
+
+   [HideInInspector] public int handlingObj; //objeto de manuseio | pode-se criar uma propriedade, mas foi feito dessa forma para ensinar o uso do HideInInspector
 
    //propriedade da variavel, para que ele seja acessado de qualquer lugar
    public Vector2 direction
@@ -40,28 +48,66 @@ public class Player : MonoBehaviour
         set { _isCutting = value; }
    }
 
+   public bool isDigging
+   {
+        get { return _isDigging; }
+        set { _isDigging = value; }
+   }
+
+   public bool isWatering
+   {
+        get { return _isWatering; }
+        set { _isWatering = value; }
+   }
+
    private void Start()
    {
         rig = GetComponent<Rigidbody2D>();
         initialSpeed = speed;
+        playerItems = GetComponent<PlayerItems>();
    }
 
 
     private void Update()
     {
-       OnInput();
+       if(!isPaused)
+       {
+       if(Input.GetKeyDown(KeyCode.Alpha1))
+          {
+               handlingObj = 0;
+          }
 
-       OnRun();
+          if(Input.GetKeyDown(KeyCode.Alpha2))
+          {
+               handlingObj = 1;
+          }
 
-       OnRolling();
+          if(Input.GetKeyDown(KeyCode.Alpha3))
+          {
+               handlingObj = 2;
+          }
 
-       OnCutting();
+
+          OnInput();
+
+          OnRun();
+
+          OnRolling();
+
+          OnCutting();
+
+          OnDig();
+
+          OnWatering();
+       }
     }    
-
 
     private void FixedUpdate() //fixedupdate para coisas relacionadas a fisica
     {
-        OnMove();
+        if(!isPaused)
+        {
+            OnMove();
+        }
     }
 
 
@@ -107,22 +153,62 @@ void OnRolling()
 
 void OnCutting()
 {
-    if(Input.GetMouseButtonDown(0))
+    if(handlingObj == 0)
     {
-        isCutting = true;
-        speed = 0f;
-    }
+        if(Input.GetMouseButtonDown(0))
+        {
+            isCutting = true;
+            speed = 0f;
+        }
 
-    if(Input.GetMouseButtonUp(0))
-    {
-        isCutting = false;
-        speed = initialSpeed;
+        if(Input.GetMouseButtonUp(0))
+        {
+            isCutting = false;
+            speed = initialSpeed;
+        }
     }
 }
 
+void OnDig()
+{
+    if(handlingObj == 1)
+    {
+        if(Input.GetMouseButtonDown(0))
+        {
+            isDigging = true;
+            speed = 0f;
+        }
 
+        if(Input.GetMouseButtonUp(0))
+        {
+            isDigging = false;
+            speed = initialSpeed;
+        }
+    }
+}
 
+void OnWatering()
+{
+    if(handlingObj == 2)
+    {
+        if(Input.GetMouseButtonDown(0)  && playerItems.TotalWater > 0)
+        {
+            isWatering = true;
+            speed = 0f;
+        }
 
+        if(Input.GetMouseButtonUp(0) || playerItems.TotalWater < 0)
+        {
+            isWatering = false;
+            speed = initialSpeed;
+        }
+
+        if(isWatering)
+        {
+            playerItems.TotalWater -= 0.01f;
+        }
+    }
+}
 
 
 

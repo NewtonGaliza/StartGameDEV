@@ -28,6 +28,4 @@ public class Wood : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-
 }
