@@ -102,4 +102,14 @@ void OnRun()
         player.isPaused = false;
     }
 
+    public void OnHammeringStarted()
+    {
+        anim.SetBool("hammering", true);
+    }
+
+    public void OnHammeringEnded()
+    {
+        anim.SetBool("hammering", false);
+    }
+
 }
