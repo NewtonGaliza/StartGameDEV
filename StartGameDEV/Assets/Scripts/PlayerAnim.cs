@@ -4,11 +4,19 @@ using UnityEngine;
 
 public class PlayerAnim : MonoBehaviour
 {
+    [Header("Attack Settings")]
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float radius;
+    [SerializeField] private LayerMask enemyLayer;
 
     private Player player; //acessando a classe Player
     private Animator anim; //acessando o animator
 
     private Casting cast;
+
+    private bool isHitting;
+    private float recoveryTime = 1f;
+    private float timeCount;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +32,17 @@ public class PlayerAnim : MonoBehaviour
         OnMove();
 
         OnRun();
+
+        if(isHitting)
+        {
+            timeCount += Time.deltaTime;
+
+            if(timeCount >= recoveryTime)
+            {
+                isHitting = false;
+                timeCount = 0f;
+            }
+        }
     }
 
 
@@ -88,6 +107,54 @@ void OnRun()
 
 #endregion
 
+    #region Attack
+
+    public void OnAttack()
+    {
+        Collider2D hit = Physics2D.OverlapCircle(attackPoint.position, radius, enemyLayer);
+
+        if(hit != null)
+        {
+            hit.GetComponentInChildren<AnimationControl>().OnHit(); //acessa o Sprite do skeleton pelo GetComponent e chama o OnHit
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.DrawWireSphere(attackPoint.position, radius);
+    }
+  
+  
+    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    #endregion
+
     //chamado quando jogador pressiona botao de acão na lagoa
     public void OnCastingStarted()
     {
@@ -110,6 +177,16 @@ void OnRun()
     public void OnHammeringEnded()
     {
         anim.SetBool("hammering", false);
+    }
+
+    public void OnHit()
+    {
+        if(!isHitting)
+        {
+             anim.SetTrigger("hit");
+             isHitting = true;
+        }
+
     }
 
 }
